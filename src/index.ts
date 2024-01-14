@@ -1,3 +1,4 @@
+import { Server } from 'socket.io';
 
 /* Create an event with the decorated function name
 The decorated function will be called back on event.
@@ -21,10 +22,13 @@ function Answer(returnEventName?:string){
 }
 
 // Pbbly abstract for many socket managment
-/*abstract*/ class  SocketManager {
-    static attach(socketServer:any) {
-        
+export /*abstract*/ class  SocketManager {
+    private static socketServer:Server;
+
+    static attach(socketServer:Server) {
+        SocketManager.socketServer = socketServer;
     }
+    @Listen
     static say_hello(data:string) {
         console.log("SocketManager:say_hello receives " + data);
         // return "Bonjour"

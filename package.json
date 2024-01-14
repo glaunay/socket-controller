@@ -1,6 +1,7 @@
 {
   "scripts" : {
-    "build": "rm -rf ./build && tsc"
+    "build": "rm -rf ./build && tsc",
+    "test" : "node build/examples/simple_server.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

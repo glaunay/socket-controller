@@ -16,3 +16,5 @@ const server = createServer((req, res) => {
 const io = new Server(server);
 
 SocketManager.attach(io);
+
+SocketManager.say_hello('toto');
