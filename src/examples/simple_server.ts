@@ -10,11 +10,18 @@ const server = createServer((req, res) => {
     }));
   });
   
-  server.listen(8000);
+
 
 
 const io = new Server(server);
 
-SocketManager.attach(io);
+const socketManager = new SocketManager(io);
 
-SocketManager.say_hello('toto');
+
+server.listen(8000);
+setTimeout( ()=> {
+  console.log("The server wants to discuss");
+  socketManager.hail("Look out !!")
+}, 11000);
+//socketManager.discuss("titi");
+//SocketManager.say_hello('toto');

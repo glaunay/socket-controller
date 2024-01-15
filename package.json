@@ -1,11 +1,13 @@
 {
-  "scripts" : {
+  "scripts": {
     "build": "rm -rf ./build && tsc",
-    "test" : "node build/examples/simple_server.js"
+    "test:server": "node build/examples/simple_server.js",
+    "test:client": "node build/examples/simple_clients.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4",
     "typescript": "^5.3.3"
   }
 }
