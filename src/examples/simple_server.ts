@@ -1,7 +1,7 @@
 import { createServer } from 'http' 
 //const { createServer } = require('node:http');
 const { Server } = require('socket.io');
-import { SocketManager } from '../index' ;
+import { SimpleSocketManager } from '../index' ;
 
 const server = createServer((req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -15,7 +15,7 @@ const server = createServer((req, res) => {
 
 const io = new Server(server);
 
-const socketManager = new SocketManager(io);
+const socketManager = new SimpleSocketManager(io);
 
 
 server.listen(8000);

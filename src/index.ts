@@ -82,7 +82,7 @@ function Listen(originalMethod: Function, context: ClassMethodDecoratorContext):
                 res(maybeResults);
                 // What do we do w/ mayresults ?
             } catch (e) {
-                console.log("We can emit this error other the tube"); 
+                console.log("[@Listen] We can emit this error other the tube"); 
             }
             })
         //const result = originalMethod.call(this, ...args);        
@@ -113,12 +113,18 @@ function Answer(EmitEvtName?:string){
         EmitEvtName = EmitEvtName ?? methodName;
         
         console.log("Answer decorator binding to emit event " + EmitEvtName);
+       /* function lazyEmit() {
+            console.log("BIP BIP");
+        }*/
         function wrapper(this: any, ...args: any[]):any {
-            new Promise( async (res, rej) => {
-                //@ts-ignore
-                const result = await originalMethod.call(this, ...args);
-                this.socketServer.emit(EmitEvtName as string, result); 
-            });
+            try {
+                    new Promise( async (res, rej) => {
+                    const result = await originalMethod.call(this, ...args);
+                    this.socketServer.emit(EmitEvtName as string, result); 
+                    });
+                } catch(e) {
+                    console.log("[@Answer] We can emit this error other the tube"); 
+                }
         }
 
         return wrapper;
@@ -140,20 +146,16 @@ function loggedMethod(headMessage = "LOG:") {
     }
 }*/
 
+
+interface SocketError {};
+const generateError = ()  => {
+
+};
 // Pbbly abstract for many socket managment
-export /*abstract*/ class  SocketManager {
-
-    //private static socketServer:Server;
-
-    /*static attach(socketServer:Server) {
-        SocketManager.socketServer = socketServer;
-    }*/
+export abstract class  SocketManager {
     static listenerFns?:Function[];
 
-    //@ts-ignore
-    constructor(private socketServer){
-        //this.say_hello("_");
-        //@ts-ignore
+    constructor(private socketServer:Server){      
         this.socketServer.on("connection", (socket:Socket)=> {
             SocketManager.listenerFns?.forEach((listenDecoratedFn:Function) =>  {
                 console.log("Dynamic binding of " + listenDecoratedFn.name);
@@ -161,57 +163,49 @@ export /*abstract*/ class  SocketManager {
             });
         });
         
-        //@ts-ignore        
-        //this.socketServer.on("connection", (socket:Socket)=> this.say_hello2(socket));
-
-        //this.socketServer.on("say_hello",function(){console.log("basic success");});
-        //@ts-ignore
-        //console.log("CONSTRUCTOR RUN TIME CONTENT OF listenerFns" + SocketManager.listenerFns);
     }
-  /*
-    @Example
-    bonjour(data:string) {
-        console.log("SocketManager:bonjour receives " + data);
-    }
-    */
+}
 
+export class SimpleSocketManager extends SocketManager {
+    constructor(socketServer: Server) {
+        super(socketServer);
+    }
     @Listen
-    say_hello(data:string) {
+    say_hello(data: string) {
         console.log("[SUCCESS] SocketManager:say_hello receives " + data);
         return "Bonjour"
     }
 
     @Listen
-    say_hello2(data:string) {
+    say_hello2(data: string) {
         console.log("[SUCCESS] SocketManager:say_hello2 receives " + data);
         return "Bonjour"
     }
 
     @Listen
-    say_hello3(data:string) {
-        console.log("[SUCCESS] SocketManager:say_hello3 receives " + data);       
-        if(data === "panic input")
+    say_hello3(data: string) {
+        console.log("[SUCCESS] SocketManager:say_hello3 receives " + data);
+        if (data === "panic input")
             throw new Error("say hello3 runtime error");
         return "Bonjour"
     }
-   
+
     // Only emit case
     @Answer('server_cast')
-    hail(msg:string) {
+    hail(msg: string) {
+        console.log("Starting hail");
         //const msg="The server is hailing you!";
         console.log(`I emiting \"${msg}\" over [server_cast]`);
         return msg;
     }
 
-    
+
     // emit triggered by succesfull listen
     @Answer('server_reply')
     //@Listen
-    discuss(data:string) {
-        const msg="The server is hailing you!";
+    discuss(data: string) {
+        const msg = "The server is hailing you!";
         console.log(`I emiting \"${msg}\" over [server_reply]`);
         return msg;
     }
-
 }
-
