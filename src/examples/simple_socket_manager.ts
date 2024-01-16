@@ -1,77 +1,51 @@
-import { Listen, Answer, AnswerMany, SocketManager, Server, ListenTo } from '../index';
+import { Listen, SocketManager, Server, ListenTo, SocketError } from '../index';
 
-export class SimpleSocketManager extends SocketManager {
-    constructor(socketServer: Server) {
-        super(socketServer);
-    }
-    @Listen
-    say_hello(data: string) {
-        console.log(`[SUCCESS] SocketManager:say_hello receives \"${data}\"`);
-        return "Bonjour"
-    }
 
-    @Listen
-    say_hello2(data: string) {
-        console.log(`[SUCCESS] SocketManager:say_hello2 receives \"${data}\"`);
-        return "Bonjour"
-    }
+export class ssmOne extends SocketManager {
 
-    @Listen
-    say_hello3(data: string) {
-        console.log(`[SUCCESS] SocketManager:say_hello3 receives \"${data}\"`);
-        if (data === "panic input")
-            throw new Error("say hello3 runtime error");
-        return "Bonjour"
+    constructor(socketServer: Server, id?:string) {
+        console.log(`Creating socket manager \"${id}\"`);
+        super({ socketServer, id });
     }
-
-    // Only emit case
-    @Answer('server_cast')
-    hail(msg: string) {
-        console.log("Starting hail");
-        //const msg="The server is hailing you!";
-        console.log(`I emiting \"${msg}\" over [server_cast]`);
-        return msg;
-    }
-
-    // Only emit case
-    @Answer()
-    hail_anon(msg: string) {
-        console.log("Starting hail");
-        console.log(`I emiting \"${msg}\" over [hail_anon]`);
-        return msg;
-    }
-
-       // Only emit case
-    @Answer()
-    async hail_async(msg: string) {
-           console.log("Starting hail_async");
-           await Promise.resolve('');
-           console.log(`I emiting \"${msg}\" over [hail_async]`);
-           return msg;
-    }
-
-    @AnswerMany()
-    *hail_many(msgs: string[]) {
-        console.log("Starting hail_many");
-        for (let t of msgs.map( ( msg, i)=> [`msg_${i}`, msg]) )           
-            yield(t)        
-            
-    }
-    @AnswerMany()
-    async *hail_many_async(msgs: string[]) {
-        console.log("Starting hail_many_async");
-        for (let t of msgs.map( ( msg, i)=> [`async_msg_${i}`, msg] ) )
-            yield await Promise.resolve(t);
-           
-    }
-
-    // emit triggered by succesfull listen
-    //@Answer('server_reply')
     @ListenTo()
-    discuss(data: string) {
-        console.log(`[SUCCESS] SocketManager:discuss reveives \"${data}\"`);
-        const msg = "The server is answering to you!";
-        console.log(`I emiting \"${msg}\" over [discuss]`);
+    discuss_logic_one(data: string) {
+        console.log(`[SUCCESS] SocketManager[${this.id}]:discuss_logic_one reveives \"${data}\"`);
+        const msg = `The server [${this.id}] is answering to you!`;
+        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_logic_one]`);
+        return msg;
+    }
+
+    @ListenTo()
+    discuss_common_logic(data: string) {
+        console.log(`[SUCCESS] SocketManager[${this.id}]:\'discuss_common_logic\' reveives \"${data}\"`);
+        const msg = `The server [${this.id}] is answering to you!`;
+        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_common_logic]`);
+        return msg;
+    }
+}
+
+
+
+export class ssmTwo extends SocketManager {
+
+    constructor(socketServer: Server, id?:string) {
+        console.log(`Creating socket manager \"${id}\"`);
+        super({ socketServer, id });
+    }
+  
+    @ListenTo()
+    discuss_logic_two(data: string) {
+        console.log(`[SUCCESS] SocketManager[${this.id}]:discuss_logic_two reveives \"${data}\"`);
+        const msg = `The server [${this.id}] is answering to you!`;
+        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_logic_two]`);
+        return msg;
+    }
+
+    @ListenTo('reply_other_topic')
+    discuss_common_logic(data: string) {
+        console.log(`[SUCCESS] SocketManager[${this.id}]:discuss_common_logic reveives \"${data}\"`);
+        const msg = `The server [${this.id}] is answering to you!`;
+        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_common_logic]`);
         return msg;
     }
 }
