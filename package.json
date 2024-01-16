@@ -2,7 +2,7 @@
   "scripts": {
     "build": "rm -rf ./build && tsc",
     "test:server": "node build/examples/simple_server.js",
-    "test:client": "node build/examples/simple_clients.js"
+    "test:client": "node build/examples/simple_clients2.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
