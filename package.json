@@ -1,5 +1,5 @@
 {
-  "name" : "socket-controller-rdy",
+  "name": "socket-controller-rdy",
   "scripts": {
     "build": "rm -rf ./build && tsc",
     "test:server": "node build/examples/simple_server.js",
@@ -13,5 +13,5 @@
     "typescript": "^5.3.3",
     "uuid": "^9.0.1"
   },
-  "version": "0.1.0"
+  "version": "0.2.0"
 }
