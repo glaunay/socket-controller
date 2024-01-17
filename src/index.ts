@@ -1,5 +1,5 @@
 import { Server, Socket, Namespace } from 'socket.io';
-export { Server } from 'socket.io';
+export { Server, Socket } from 'socket.io';
 import { v4 as uuid4 } from 'uuid';
 import { isAbsolute } from 'path';
 
