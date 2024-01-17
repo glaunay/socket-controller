@@ -39,7 +39,7 @@ export class MySocketCtrl extends SocketController {
 // Instantiate the controller passing
 // an already existing socket io server instance
 const io = new Server(server);
-const socketManagerTwo = new ssmTwo({socketServer:io});
+const socketManagerTwo = new MySocketCtrl({socketServer:io});
 
 ```
 
