@@ -1,4 +1,4 @@
-# socket-controller, an all around Socket IO Backend Controller
+# socket-controller-rdy, an all around Socket IO Backend Controller
 
 This package is a drop-in backend-end controller solution for socket-io managed websocket.
 Controller logics are regrouped inside single class, derived from a SocketController abstract class. Each class will run as singleton and several different class can operate at the same runtime. The incoming packets are passed to the corresponding SocketManager controller through the namespace Socket.IO feature. By default, namespace equals to the class name, eg: the class MyController will listen to '/MyController'.
@@ -34,6 +34,12 @@ export class MySocketCtrl extends SocketController {
         return msg;
     }
 }
+
+// Instantiate the controller passing
+// an already existing socket io server instance
+const io = new Server(server);
+const socketManagerTwo = new ssmTwo({socketServer:io});
+
 ```
 
 ### Client-side

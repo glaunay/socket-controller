@@ -1,4 +1,5 @@
 {
+  "name" : "socket-controller-rdy",
   "scripts": {
     "build": "rm -rf ./build && tsc",
     "test:server": "node build/examples/simple_server.js",
