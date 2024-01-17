@@ -1,51 +1,43 @@
-import { Listen, SocketManager, Server, ListenTo, SocketError } from '../index';
+import { Listen, SocketController, Server, ListenTo, SocketError } from '../index';
 
 
-export class ssmOne extends SocketManager {
+export class ssmOne extends SocketController {
 
-    constructor(socketServer: Server, id?:string) {
-        console.log(`Creating socket manager \"${id}\"`);
-        super({ socketServer, id });
-    }
     @ListenTo()
-    discuss_logic_one(data: string) {
-        console.log(`[SUCCESS] SocketManager[${this.id}]:discuss_logic_one reveives \"${data}\"`);
+    discuss_logic_one(data: string, socket:any) {
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_one\' reveives \"${data}\"`);
         const msg = `The server [${this.id}] is answering to you!`;
-        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_logic_one]`);
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_one\' returns \"${msg}\"`);
         return msg;
     }
 
     @ListenTo()
-    discuss_common_logic(data: string) {
-        console.log(`[SUCCESS] SocketManager[${this.id}]:\'discuss_common_logic\' reveives \"${data}\"`);
+    discuss_common_logic(data: string, socket:any) {
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_common_logic\' reveives \"${data}\"`);
         const msg = `The server [${this.id}] is answering to you!`;
-        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_common_logic]`);
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_common_logic\' returns \"${msg}\"`);
+      //  console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_common_logic]`);
         return msg;
     }
 }
 
 
 
-export class ssmTwo extends SocketManager {
-
-    constructor(socketServer: Server, id?:string) {
-        console.log(`Creating socket manager \"${id}\"`);
-        super({ socketServer, id });
-    }
-  
+export class ssmTwo extends SocketController {  
+    
     @ListenTo()
-    discuss_logic_two(data: string) {
-        console.log(`[SUCCESS] SocketManager[${this.id}]:discuss_logic_two reveives \"${data}\"`);
+    discuss_logic_two(data: string, socket:any) {
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_two\' reveives \"${data}\"`);
         const msg = `The server [${this.id}] is answering to you!`;
-        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_logic_two]`);
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_two\' returns \"${msg}\"`);
         return msg;
     }
 
     @ListenTo('reply_other_topic')
-    discuss_common_logic(data: string) {
-        console.log(`[SUCCESS] SocketManager[${this.id}]:discuss_common_logic reveives \"${data}\"`);
+    discuss_common_logic(data: string, socket:any) {
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_common_logic\' reveives \"${data}\"`);      
         const msg = `The server [${this.id}] is answering to you!`;
-        console.log(`ssm${this.id} emiting \"${msg}\" over [discuss_common_logic]`);
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_common_logic\' returns \"${msg}\" over \"reply_other_topic\"`);
         return msg;
     }
 }

@@ -12,8 +12,8 @@ const server = createServer((req, res) => {
   
 const io = new Server(server);
 
-const socketManagerTwo = new ssmTwo(io, '2');
-const socketManagerOne = new ssmOne(io, '1');
+const socketManagerTwo = new ssmTwo({socketServer:io});
+const socketManagerOne = new ssmOne({socketServer:io});
 
 
 server.listen(8000);
