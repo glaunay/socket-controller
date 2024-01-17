@@ -18,7 +18,7 @@ The return value of the decorated function will be emited back to ws client on a
 The method is passed as a trailer argument a direct reference to the underlying socket object if several emits are required.
 Methods can be async.
 ```js
-import { SocketController, Server, ListenTo, Socket } from 'socket-controller';
+import { SocketController, ListenTo, Socket } from 'socket-controller';
 
 
 export class MySocketCtrl extends SocketController {
@@ -36,11 +36,16 @@ export class MySocketCtrl extends SocketController {
     }
 }
 
+// Create a dummy http server attaching the socket.io instance.
+import { createServer } from "http";
+import { Server } from "socket.io";
+const httpServer = createServer();
+const io = new Server(httpServer, {
+  // options
+});
 // Instantiate the controller passing
-// an already existing socket io server instance
-const io = new Server(server);
+// an already existing socket.io server instance
 const socketManagerTwo = new MySocketCtrl({socketServer:io});
-
 ```
 
 ### Client-side
