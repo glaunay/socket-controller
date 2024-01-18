@@ -2,7 +2,7 @@
   "name": "socket-controller-rdy",
   "scripts": {
     "build": "rm -rf ./build && tsc",
-    "dist" : "rm -rf ./dist && tsc --declaration --outDir ./dist && cp README.md package.json dist",
+    "dist": "rm -rf ./dist && tsc --declaration --outDir ./dist && cp README.md package.json dist",
     "test:server": "node build/examples/simple_server.js",
     "test:client": "node build/examples/cross-talks.js"
   },
@@ -14,5 +14,5 @@
     "typescript": "^5.3.3",
     "uuid": "^9.0.1"
   },
-  "version": "0.3.3"
+  "version": "0.4.0"
 }
