@@ -2,7 +2,7 @@
   "name": "socket-controller-rdy",
   "scripts": {
     "build": "rm -rf ./build && tsc",
-    "postbuild": "cp README.md package.json build/",
+    "dist" : "rm -rf ./dist && tsc --declaration --outDir ./dist && cp README.md package.json dist",
     "test:server": "node build/examples/simple_server.js",
     "test:client": "node build/examples/cross-talks.js"
   },
