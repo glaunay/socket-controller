@@ -122,7 +122,7 @@ export function Listen(originalMethod: Function, context: ClassMethodDecoratorCo
  *  This return event can be renamed by providing an optional string
  *  to the decorator. eg: \@ListenTo('resultEvent'). 
 */
-export function ListenTo(EmitEvtName?: string) {
+export function ListenTo(EmitEvtName?: string):any {
 
     return function actualDecorator(originalMethod: any, context: ClassMethodDecoratorContext) {
         const methodName = String(context.name);
