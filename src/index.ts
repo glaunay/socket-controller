@@ -20,6 +20,9 @@ class SocketControllerCreationError extends Error{};
 
 type ConnectionID = string;
 
+
+//https://stackoverflow.com/questions/61439271/can-i-access-the-target-class-instance-in-a-typescript-method-decorator
+// Need to override constructor at class lvl decorator
 export abstract class SocketController {
     private socketServer:Server;
     private app:Namespace
@@ -44,8 +47,10 @@ export abstract class SocketController {
 
         if(this.debug)
             console.log("[SocketManager] Hosting namespace @ " + this.namespace);
+       
 
         this.app.on("connection", (socket:Socket)=> {
+            console.log("connection !");
             if(this.debug)
                 console.log(`[SocketManager] New connection [${socket.id.slice(0, 4)}]`);
             this.listenerFns?.forEach(([fnName, listenDecoratedFn]) =>  {
@@ -66,51 +71,6 @@ export abstract class SocketController {
     };
 }
 
-// NEEDS REWORK
-export function Listen(originalMethod: Function, context: ClassMethodDecoratorContext):any {
-    
-    function wrapper(this: any, ...args: any[]):Promise<any> {    
-    // Maybe make it async to access mayBeResults in @Answer
-        const fnNameAsEvent = originalMethod.name;
-       
-        //console.log(this.socketServer);
-        let maybeResults;
-        // force async 
-        return new Promise ( (res, rej)=> {
-            args[0].on(fnNameAsEvent, async (data?:any)=> {
-          //  console.log(`Listen wrapper INNER call of ${fnNameAsEvent} with ${data}`);
-            try{ // encapsulating service errors
-                maybeResults = await Promise.resolve(               
-                    originalMethod.call(this, data));
-
-                console.log("GOTCHA " + maybeResults);
-                res(maybeResults);
-                // What do we do w/ mayresults ?
-            } catch (e) {
-                console.log("[@Listen] We can emit this error other the tube");
-                //const socketError = this.errorFormater(e)
-            }
-            })
-        //const result = originalMethod.call(this, ...args);        
-        console.log("Listen decorated " + fnNameAsEvent);
-        });
-        //return result;
-    }
-    //wrapper.name = "listenWrapper_" + originalMethod.name;
-    context.addInitializer(function (...args:any) {
-        //console.log("Firing addInitializer " + args[0]);
-        //console.log("Firing addInitializer " + inspect(this));
-        const self = this as SocketController;
-        if(!self.listenerFns)
-            self.listenerFns = [];
-        // Should check for overwritings
-        self.listenerFns.push([originalMethod.name, wrapper]);    
-    });
-
-    //wrapper();
-    //return wrapper;
-}
-
 
 /** Decorate a "controller" method to bind its logic to a ws incoming event.
  * 
@@ -122,7 +82,7 @@ export function Listen(originalMethod: Function, context: ClassMethodDecoratorCo
  *  This return event can be renamed by providing an optional string
  *  to the decorator. eg: \@ListenTo('resultEvent'). 
 */
-export function ListenTo(EmitEvtName?: string):any {
+function DECstage3_ListenTo(EmitEvtName?: string):any {
 
     return function actualDecorator(originalMethod: any, context: ClassMethodDecoratorContext) {
         const methodName = String(context.name);
@@ -182,3 +142,35 @@ export function ListenTo(EmitEvtName?: string):any {
         });       
     }
 }
+
+
+function DECstage2_ListenTo(EmitEvtName?: string):any {
+
+    return function actualDecorator(classPrototype: any, methodName:string, descriptor:PropertyDescriptor) {
+       
+        EmitEvtName = EmitEvtName ?? methodName;
+        const fnNameAsEvent = methodName;
+
+        console.log(classPrototype);
+        console.log(methodName);
+        console.log(descriptor);
+        
+        //const originalValue = descriptor.value;
+        descriptor.value = function(...args:any[]) {
+             // "this" here will refer to the class instance
+            console.log("KIKOU ==>" + this.constructor.name);
+            //return originalValue.apply(this, args);
+        }
+
+        /*  const wrapperFn = (...args: any[]) => {
+            console.warn(`Method ${methodName} is bein wrapped`);
+            //@ts-ignore
+            propertyDescriptor.value.apply(this, args)
+        }
+    */
+
+        //wrapperFn
+    } 
+}
+
+export { DECstage2_ListenTo as ListenTo};
