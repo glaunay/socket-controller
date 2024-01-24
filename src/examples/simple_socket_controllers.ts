@@ -5,8 +5,8 @@ import { SocketController, ListenTo, SocketControllerRegister } from '../control
 export class ssmOne extends SocketController {
     
     @ListenTo()
-    discuss_logic_one(data: string, socket:any) {
-        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_one\' reveives \"${data}\"`);
+    discuss_logic_one(word1: string, word2:string, socket:any) {
+        console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_one\' reveives \"${word1}\" \"${word2}\"`);
         const msg = `The server [${this.id}] is answering to you!`;
         console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_one\' returns \"${msg}\"`);
         return msg;

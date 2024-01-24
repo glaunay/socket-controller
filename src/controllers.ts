@@ -53,15 +53,15 @@ export function SocketControllerRegister<T extends { new(...args: any[]): {} }>(
                 subMethods.forEach((requestName: string, method: string) => {
                     console.log(requestName + "," + method);
                     const ansEvtName = requestName ?? method;
-                    socket.on(method, async (data?: any) => {
+                    socket.on(method, async (...sockArgs:any[]) => {
                         if(self.debug){
                             console.log(`ListenTo: incoming event \"${method}\" on socket ${socket.id.slice(0,4)} <<<<`);
-                            console.log(`\tdata: ${data}`);
+                            console.log(`\tdata: ${sockArgs}`);
                         }
                         try { // encapsulating service errors
                             // passing concrete socket as trailer arg to decorated fn
                             const maybeResults = await Promise.resolve(
-                                (self as any)[method](data, socket));
+                                (self as any)[method](...sockArgs, socket));
                             console.log(`ListenTo: outgoing event \"${ansEvtName}\" on socket ${socket.id.slice(0,4)} <<<<`);    
                             console.log(`\tdata: ${maybeResults}`);
                             socket.emit(ansEvtName, maybeResults);

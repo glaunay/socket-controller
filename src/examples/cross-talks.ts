@@ -18,7 +18,11 @@ export const any_client = (id:string, type:string) => {
             console.log(`\nClient ${id} ${type} :: Connected as socket ${short}!`);             
             
             console.log(`Client ${short} emiting on \"discuss_${type}\"`);
-            socket.emit(`discuss_${type}`, `Let's start discuss under discuss_${type}?`);
+            const data = [`Let's start discuss under discuss_${type}?`]
+            if (type === "logic_one")
+                data.push(" logic one has something to add !!!!");
+            console.log(data);
+            socket.emit(`discuss_${type}`, ...data);
             
             console.log(`Client ${short} emiting on \"discuss_common_logic\"`);
             socket.emit(`discuss_common_logic`, `Let's start discuss under common_logic (from client[${type}])?`);
