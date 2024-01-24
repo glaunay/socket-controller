@@ -1,8 +1,9 @@
-import { SocketController, ListenTo } from '../index';
+import { SocketController, ListenTo, SocketControllerRegister } from '../index';
 
 
+@SocketControllerRegister
 export class ssmOne extends SocketController {
-
+    
     @ListenTo()
     discuss_logic_one(data: string, socket:any) {
         console.log(`[Controler] SocketManager[${this.id} / ${socket.id}]:\'discuss_logic_one\' reveives \"${data}\"`);
@@ -23,6 +24,7 @@ export class ssmOne extends SocketController {
 
 
 
+@SocketControllerRegister
 export class ssmTwo extends SocketController {  
     
     @ListenTo()

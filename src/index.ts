@@ -20,10 +20,135 @@ class SocketControllerCreationError extends Error{};
 
 type ConnectionID = string;
 
+const SubMethods = Symbol('__SocketControllerMethods__'); // just to be sure there won't be collisions
+const BaseName  =  Symbol('__BaseName__');
+// Here we only register 
+export function ListenTo(requestName?: string) {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    target[SubMethods] = target[SubMethods] || new Map();
+    // Here we just add some information that class decorator will use
+    target[SubMethods].set(propertyKey, requestName);
+  };
+}
+
+export function SocketControllerRegister<T extends { new(...args: any[]): {} }>(Base: T) {
+  return class extends Base {
+    constructor(...args: any[]) {    
+        const _ = args[0];
+        if (! ('route' in _) )
+            _['route'] = `/${Base.name}`;
+        //this[BaseName] = Base.constructor.name;
+      super(...args, Base.constructor.name);
+      
+        const self = this as unknown as SocketController;
+        //@ts-ignore
+        console.log("-->" + self.app);
+        self.app.on("connection", (socket: Socket) => {
+            console.log("connection !");
+            if (self.debug)
+                console.log(`[SocketManager] New connection [${socket.id.slice(0, 4)}]`);
+
+
+            const subMethods = Base.prototype[SubMethods];
+            if (subMethods) {
+                subMethods.forEach((requestName: string, method: string) => {
+                    console.log(requestName + "," + method);
+                    const ansEvtName = requestName ?? method;
+                    socket.on(method, async (data?: any) => {
+                        console.log(`ListenTo: incoming event \"${method}\" on socket ${socket.id.slice(0,4)} <<<<`);
+                        console.log(`\tdata: ${data}`);
+                        try { // encapsulating service errors
+                            // passing concrete socket as trailer arg to decorated fn
+                            const maybeResults = await Promise.resolve(
+                                (self as any)[method](data, socket));
+                            console.log(`ListenTo: outgoing event \"${ansEvtName}\" on socket ${socket.id.slice(0,4)} <<<<`);    
+                            console.log(`\tdata: ${maybeResults}`);
+                            socket.emit(ansEvtName, maybeResults);
+                        } catch (e) {
+                            if(self.debug){
+                                console.log(`ListenTo: __ERROR__ emiting it under \"${ansEvtName}\"`);
+                                console.log(`\tcontent: ${e}`);
+                            }
+                            socket.emit(ansEvtName as string, 
+                                { type: 'error', content: e } as SocketError);
+                            }
+                    })
+                })
+            }
+        });
+    }}};
+                  /*  socket.on(fnNameAsEvent, async (data?: any) => {
+                        if(self.debug){
+                            console.log(`ListenTo: incoming event \"${methodName}\" on socket ${socket.id.slice(0,4)} <<<<`);
+                            console.log(`\tdata: ${data}`);
+                        }
+                        try { // encapsulating service errors
+                            // passing concrete socket as trailer arg to decorated fn
+                            const maybeResults = await Promise.resolve(
+                                originalMethod.call(self, data, socket));
+                            if(self.debug){
+                                console.log(`ListenTo: outgoing event \"${methodName}\" on socket ${socket.id.slice(0,4)} <<<<`);    
+                                console.log(`\tdata: ${maybeResults}`);
+                            }
+                            socket.emit(EmitEvtName as string, maybeResults);
+                            res(maybeResults); // so what                            
+                        } catch (e) {
+                            if(self.debug){
+                                console.log(`ListenTo: __ERROR__ emiting it under \"${EmitEvtName}\"`);
+                                console.log(`\tcontent: ${e}`);
+                            }
+                            socket.emit(EmitEvtName as string, 
+                                { type: 'error', content: e } as SocketError);
+                           
+                        }
+                    })*/
+                   
+
+          /*
+          WebsocketHandler.getInstance()
+            .registerRequestHandler(
+              requestName,
+              () => (this as any)[method]()
+            );
+            */
+
+
+
+export abstract class SocketController {
+    private socketServer:Server;
+    public app:Namespace
+    public debug:boolean;
+
+    id:string;
+    namespace:string;
+
+    constructor(params:SocketControllerParameters){     
+        const { socketServer, id = uuid4(),
+            route,
+            debug = false } = params;
+            console.log(route);
+        if (!isAbsolute(route as string)) // in-case use inputed
+            throw new SocketControllerCreationError(`The route parameter \"${route}\" must be an absolute path`);
+        
+        
+        this.id = id;
+        this.socketServer = socketServer;
+        this.namespace = route as string;
+        this.app = this.socketServer.of(this.namespace);
+        this.debug = debug;
+
+        if (this.debug)
+            console.log("[SocketManager] Hosting namespace @ " + this.namespace);
+        //console.log(this.app);
+        console.log(this.namespace);
+        console.log(this.constructor);
+
+    }
+}
 
 //https://stackoverflow.com/questions/61439271/can-i-access-the-target-class-instance-in-a-typescript-method-decorator
 // Need to override constructor at class lvl decorator
-export abstract class SocketController {
+export abstract class __SocketController {
     private socketServer:Server;
     private app:Namespace
     public debug:boolean;
@@ -71,106 +196,3 @@ export abstract class SocketController {
     };
 }
 
-
-/** Decorate a "controller" method to bind its logic to a ws incoming event.
- * 
- *  Make the decorated function receiving data from the websocket 
- *  on event with the same name as the decorated function,
- *  eg: myMethod will be triggered by 'myMethod' incoming event.
- *  The return value of the decorated function will be 
- *  emited back to ws client on an event of similar name.
- *  This return event can be renamed by providing an optional string
- *  to the decorator. eg: \@ListenTo('resultEvent'). 
-*/
-function DECstage3_ListenTo(EmitEvtName?: string):any {
-
-    return function actualDecorator(originalMethod: any, context: ClassMethodDecoratorContext) {
-        const methodName = String(context.name);
-        EmitEvtName = EmitEvtName ?? methodName;
-
-        const fnNameAsEvent = originalMethod.name;
-        context.addInitializer(function (...args: any) {
-        /*
-            Object is instanciated hook, b4 constructor
-            We create the registering fn and add it to table
-        */
-            const self = this as SocketController;
-            
-            function wrapper(socket:Socket, ...args: any[]): Promise<any> {
-                if(self.debug){
-                    console.log(`Binding event \"${EmitEvtName}\" to socket ${socket.id.slice(0,4)}`)
-                    console.log(`\t[ListenTo] starts wrapper: ${methodName}`);
-                }
-              
-                // force async 
-                return new Promise((res, rej) => {
-                    //  console.log(`ListenTo:wrapper: ${methodName} socket bound to evt \"${fnNameAsEvent}\"`);
-                  
-                    socket.on(fnNameAsEvent, async (data?: any) => {
-                        if(self.debug){
-                            console.log(`ListenTo: incoming event \"${methodName}\" on socket ${socket.id.slice(0,4)} <<<<`);
-                            console.log(`\tdata: ${data}`);
-                        }
-                        try { // encapsulating service errors
-                            // passing concrete socket as trailer arg to decorated fn
-                            const maybeResults = await Promise.resolve(
-                                originalMethod.call(self, data, socket));
-                            if(self.debug){
-                                console.log(`ListenTo: outgoing event \"${methodName}\" on socket ${socket.id.slice(0,4)} <<<<`);    
-                                console.log(`\tdata: ${maybeResults}`);
-                            }
-                            socket.emit(EmitEvtName as string, maybeResults);
-                            res(maybeResults); // so what                            
-                        } catch (e) {
-                            if(self.debug){
-                                console.log(`ListenTo: __ERROR__ emiting it under \"${EmitEvtName}\"`);
-                                console.log(`\tcontent: ${e}`);
-                            }
-                            socket.emit(EmitEvtName as string, 
-                                { type: 'error', content: e } as SocketError);
-                           
-                        }
-                    })
-                   
-                });
-                //return result;
-            }
-
-            if (!self.listenerFns)
-                self.listenerFns = []
-            self.listenerFns.push([methodName, wrapper]);
-        });       
-    }
-}
-
-
-function DECstage2_ListenTo(EmitEvtName?: string):any {
-
-    return function actualDecorator(classPrototype: any, methodName:string, descriptor:PropertyDescriptor) {
-       
-        EmitEvtName = EmitEvtName ?? methodName;
-        const fnNameAsEvent = methodName;
-
-        console.log(classPrototype);
-        console.log(methodName);
-        console.log(descriptor);
-        
-        //const originalValue = descriptor.value;
-        descriptor.value = function(...args:any[]) {
-             // "this" here will refer to the class instance
-            console.log("KIKOU ==>" + this.constructor.name);
-            //return originalValue.apply(this, args);
-        }
-
-        /*  const wrapperFn = (...args: any[]) => {
-            console.warn(`Method ${methodName} is bein wrapped`);
-            //@ts-ignore
-            propertyDescriptor.value.apply(this, args)
-        }
-    */
-
-        //wrapperFn
-    } 
-}
-
-export { DECstage2_ListenTo as ListenTo};
