@@ -5,7 +5,8 @@
     "dist": "rm -rf ./dist && tsc --declaration --outDir dist && cp README.md package.json dist",
     "test:server": "node build/examples/barebone_server.js",
     "test:manager": "node build/examples/manager_server.js",
-    "test:client": "node build/examples/cross-talks.js"
+    "test:client": "node build/examples/cross-talks.js",
+    "test:error-client": "node build/examples/error_cases.js"
   },
   "devDependencies": {
     "@types/node": "^20.11.5",

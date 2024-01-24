@@ -64,14 +64,15 @@ export function SocketControllerRegister<T extends { new(...args: any[]): {} }>(
                                 (self as any)[method](...sockArgs, socket));
                             console.log(`ListenTo: outgoing event \"${ansEvtName}\" on socket ${socket.id.slice(0,4)} <<<<`);    
                             console.log(`\tdata: ${maybeResults}`);
-                            socket.emit(ansEvtName, maybeResults);
+                            if( maybeResults !== undefined)
+                                socket.emit(ansEvtName, maybeResults);
                         } catch (e) {
                             if(self.debug){
                                 console.log(`ListenTo: __ERROR__ emiting it under \"${ansEvtName}\"`);
                                 console.log(`\tcontent: ${e}`);
                             }
                             socket.emit(ansEvtName as string, 
-                                { type: 'error', content: e } as SocketError);
+                                { type: 'error', content: `${e}` } as SocketError);
                             }
                     })
                 })

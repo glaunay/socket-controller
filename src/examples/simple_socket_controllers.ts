@@ -43,3 +43,24 @@ export class ssmTwo extends SocketController {
         return msg;
     }
 }
+
+
+
+@SocketControllerRegister
+export class ErrorService extends SocketController {
+    
+    @ListenTo()
+    nobodyThere(data:string){
+        // Oups, I don't expec to return anything
+    }
+
+    @ListenTo()
+    nobodyThereToo(data:string){
+       return undefined;
+    }
+
+    @ListenTo()
+    clunckyService() {
+        throw new Error("I'am broken")
+    }
+}
