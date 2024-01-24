@@ -3,7 +3,8 @@
   "scripts": {
     "build": "rm -rf ./build && tsc",
     "dist": "rm -rf ./dist && tsc --declaration --outDir dist && cp README.md package.json dist",
-    "test:server": "node build/examples/simple_server.js",
+    "test:server": "node build/examples/barebone_server.js",
+    "test:manager": "node build/examples/manager_server.js",
     "test:client": "node build/examples/cross-talks.js"
   },
   "devDependencies": {

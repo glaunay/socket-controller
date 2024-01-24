@@ -8,8 +8,8 @@ const any_client = (id:string) => {
     const delay = pullDelay();
     console.log(`Client ${id} is connecting in ${delay}sc`);
     const _ = setTimeout( ()=> {
-        const socket = io("http://localhost:8000");
-        
+        const socket = io("http://localhost:8000/ssmTwo");
+        console.log(socket);
         socket.on("connect", () =>{ 
             const evt = 'say_hello';
             console.log(`Client ${id} CONNECTED => emiting on ${evt}`);

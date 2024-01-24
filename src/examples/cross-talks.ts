@@ -1,5 +1,4 @@
 import { io } from "socket.io-client";
-import { v4 as uuidv4 } from 'uuid';
 
 console.log("\t####Testing cross-talks####");
 const pullDelay = () => Math.floor(Math.random() * 10);
@@ -37,9 +36,6 @@ export const any_client = (id:string, type:string) => {
         socket.on(`reply_other_topic`, (m: string) => {
             console.log(`[reply_other_topic:${short}] Client${type} receives \"${m}\"`);
         });
-
-
-
         });
         
             

@@ -7,6 +7,9 @@ Controller logics are regrouped inside single class, derived from a SocketContro
 The decorator `@ListenTo`, will decorate a Controller method to bind its logic to  socket.io incoming/outgoing events. The decorated function will receive data from the websocket on event with the same name as the decorated function, eg: myMethod will be triggered by 'myMethod' incoming event
 The return value of the decorated function will be emited back to ws client on an event of similar name. This return event can be renamed by providing an optional string to the decorator. eg: \@ListenTo('resultEvent'). 
 
+## TypeScript experimental decorators package version
+This version of the package makes is compatible with this implementation of decorators which requires each custom controller class to be also decorated (see below).
+
 ## Installation
 
 ##### client-side : `npm install socket.io-client`
@@ -15,12 +18,14 @@ The return value of the decorated function will be emited back to ws client on a
 ## Deployment
 
 ### Server-side
-The method is passed as a trailer argument a direct reference to the underlying socket object if several emits are required.
+
+The method that are to be bound to incoming WS requests are passed as a trailer argument a direct reference to the underlying socket object if several emits are required.
 Methods can be async.
+The class that hosts the methods must inherit the `SocketController` **and** be decorated as `@SocketControllerRegister`;
 ```js
-import { SocketController, ListenTo, Socket } from 'socket-controller';
+import { SocketController, ListenTo, SocketControllerRegister } from 'socket-controller-rdy';
 
-
+@SocketControllerRegister
 export class MySocketCtrl extends SocketController {
     @ListenTo()
     welcome(data: string) {
@@ -35,17 +40,32 @@ export class MySocketCtrl extends SocketController {
         return msg;
     }
 }
+```
 
-// Create a dummy http server attaching the socket.io instance.
-import { createServer } from "http";
-import { Server } from "socket.io";
-const httpServer = createServer();
-const io = new Server(httpServer, {
-  // options
-});
-// Instantiate the controller passing
-// an already existing socket.io server instance
-const socketManagerTwo = new MySocketCtrl({socketServer:io});
+We can now create the socket Router which will register the custom controller. It can then be attached to an HTTP server to start handling WS incoming requests.
+```js
+import { createServer } from 'http' 
+import { SocketRouter } from "socket-controller-rdy";
+
+
+const http = createServer();
+
+const router = new SocketRouter();
+router.use(MySocketCtrl);
+router.bind({ http });
+
+http.listen(8000);
+```
+The router can alternatively be attached to a pre-existing socket-io server.
+```js
+const http = createServer();
+const io = new Server(http);
+
+const router = new SocketRouter();
+router.use(MySocketCtrl);
+router.bind({ io });
+
+http.listen(8000);
 ```
 
 ### Client-side
@@ -59,5 +79,6 @@ socket.on("connect", () =>{
 });
 socket.on("welcome",(data) => console.log(data)) // prints "The WS controller MySocketCtrl is answering to you!"
 socket.on("reply_here",(data) => console.log(data)) // prints "The WS controller MySocketCtrl is answering to you too!"
+socket.on("updateEvent",(data) => console.log(data)) // prints "step one passed"
 ```
 

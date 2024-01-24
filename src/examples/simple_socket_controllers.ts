@@ -1,4 +1,4 @@
-import { SocketController, ListenTo, SocketControllerRegister } from '../index';
+import { SocketController, ListenTo, SocketControllerRegister } from '../controllers';
 
 
 @SocketControllerRegister
