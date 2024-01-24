@@ -13,7 +13,7 @@ This version of the package makes is compatible with this implementation of deco
 ## Installation
 
 ##### client-side : `npm install socket.io-client`
-##### server-side : `npm install socket-controller`
+##### server-side : `npm install socket-controller-rdy`
 
 ## Deployment
 

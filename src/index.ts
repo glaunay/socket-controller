@@ -1,3 +1,4 @@
-import { SocketRouter } from './manager';
+import { SocketRouter as Router} from './manager';
+export { ListenTo, SocketControllerRegister} from './controllers'
 
-export default SocketRouter;
+export default Router;
