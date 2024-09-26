@@ -1,8 +1,8 @@
 {
   "name": "socket-controller-rdy",
   "scripts": {
-    "build": "rm -rf ./build && ./node_modules/typescript/bin/tsc",
-    "dist": "rm -rf ./dist && ./node_modules/typescript/bin/tsc --declaration --outDir dist && cp README.md package.json dist",
+    "build": "rm -rf ./build ./dist && ./node_modules/typescript/bin/tsc",
+    "dist": "rm -rf ./dist ./build && ./node_modules/typescript/bin/tsc --declaration --outDir ./dist && cp README.md package.json dist",
     "test:server": "node build/examples/barebone_server.js",
     "test:manager": "node build/examples/manager_server.js",
     "test:client": "node build/examples/cross-talks.js",
