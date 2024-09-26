@@ -17,7 +17,9 @@ setTimeout ( () => {
 
         socket.emit('clunckyService', 'TicTac');
         socket.on('clunckyService', (...d)=> console.log( "this should contain an error:\n" + inspect(d) ));
-
+        
+        socket.emit('clunckyServiceWithDatumError', 'TicToc');
+        socket.on('clunckyServiceWithDatumError', (...d)=> console.log( "this should contain an error Object:\n" + inspect(d) ));
     });
 
 }, pullDelay())

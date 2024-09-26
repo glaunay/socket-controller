@@ -63,4 +63,8 @@ export class ErrorService extends SocketController {
     clunckyService() {
         throw new Error("I'am broken")
     }
+    @ListenTo()
+    clunckyServiceWithDatumError() {
+        throw new Error(JSON.stringify({ "stuff": 42 }))
+    }
 }

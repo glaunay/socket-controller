@@ -66,13 +66,19 @@ export function SocketControllerRegister<T extends { new(...args: any[]): {} }>(
                             console.log(`\tdata: ${maybeResults}`);
                             if( maybeResults !== undefined)
                                 socket.emit(ansEvtName, maybeResults);
-                        } catch (e) {
+                        } catch (e:any) {
                             if(self.debug){
                                 console.log(`ListenTo: __ERROR__ emiting it under \"${ansEvtName}\"`);
                                 console.log(`\tcontent: ${e}`);
                             }
+                            let content:string|Object;
+                            try {
+                                content = JSON.parse(e.message);
+                            } catch (_){
+                                content = `${e}`;
+                            }
                             socket.emit(ansEvtName as string, 
-                                { type: 'error', content: `${e}` } as SocketError);
+                                { type: 'error', content } as SocketError);
                             }
                     })
                 })
