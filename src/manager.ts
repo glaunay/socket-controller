@@ -52,8 +52,10 @@ export class SocketRouter {
     use<A extends SocketController>(controller: { new (p:SocketControllerParameters): A }) {  // When creating factories in TypeScript using generics, it is necessary to refer to class types by their constructor functions. 
                                                                   //https://www.reddit.com/r/typescript/comments/pxvifr/create_instance_of_generic_type_t/        
         //const _ = [controller];
+        /*
         console.log("A new controller is used");
         console.dir(controller);
+        */
         this.blueprints.push( controller );
         //this.controller.push( new controller({socketServer: this.io}) );
     }   
