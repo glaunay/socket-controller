@@ -51,7 +51,8 @@ export function SocketControllerRegister<T extends { new(...args: any[]): {} }>(
             const subMethods = Base.prototype[SubMethods];
             if (subMethods) {
                 subMethods.forEach((requestName: string, method: string) => {
-                    console.log(requestName + "," + method);
+                    if(self.debug)
+                        console.log(`SocketControllerRegister:onConnection[requestName:method] ${requestName}:${method}`);
                     const ansEvtName = requestName ?? method;
                     socket.on(method, async (...sockArgs:any[]) => {
                         if(self.debug){
