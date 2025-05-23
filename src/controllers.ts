@@ -63,8 +63,10 @@ export function SocketControllerRegister<T extends { new(...args: any[]): {} }>(
                             // passing concrete socket as trailer arg to decorated fn
                             const maybeResults = await Promise.resolve(
                                 (self as any)[method](...sockArgs, socket));
-                            console.log(`ListenTo: outgoing event \"${ansEvtName}\" on socket ${socket.id.slice(0,4)} <<<<`);    
-                            console.log(`\tdata: ${maybeResults}`);
+                            if(self.debug) {
+                                console.log(`ListenTo: outgoing event \"${ansEvtName}\" on socket ${socket.id.slice(0,4)} <<<<`);    
+                                console.log(`\tdata: ${maybeResults}`);
+                            }
                             if( maybeResults !== undefined)
                                 socket.emit(ansEvtName, maybeResults);
                         } catch (e:any) {
