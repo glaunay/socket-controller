@@ -5,7 +5,7 @@ Controller logics are regrouped inside single class, derived from a SocketContro
 
 ## controller methods logic
 The decorator `@ListenTo`, will decorate a Controller method to bind its logic to  socket.io incoming/outgoing events. The decorated function will receive data from the websocket on event with the same name as the decorated function, eg: myMethod will be triggered by 'myMethod' incoming event
-The return value of the decorated function will be emited back to ws client on an event of similar name. This return event can be renamed by providing an optional string to the decorator. eg: \@ListenTo('resultEvent'). 
+The return value of the decorated function will be emited back to ws client on an event of similar name. This return event can be renamed by providing an optional string to the decorator. eg: \@ListenTo('resultEvent').
 
 ## TypeScript experimental decorators package version
 This version of the package makes is compatible with this implementation of decorators which requires each custom controller class to be also decorated (see below).
@@ -44,7 +44,7 @@ export class MySocketCtrl extends SocketController {
 
 We can now create the socket Router which will register the custom controller. It can then be attached to an HTTP server to start handling WS incoming requests.
 ```js
-import { createServer } from 'http' 
+import { createServer } from 'http'
 import { SocketRouter } from "socket-controller-rdy";
 
 
@@ -73,7 +73,7 @@ You just need to account for the namespace at connection.
 
 ```js
 const socket = io("https://server-domain.com/MySocketCtrl");
-socket.on("connect", () =>{ 
+socket.on("connect", () =>{
     socket.emit("welcome", `Hi from Client`);
     socket.emit("say_hello", `Hi from Client too`);
 });
@@ -82,3 +82,21 @@ socket.on("reply_here",(data) => console.log(data)) // prints "The WS controller
 socket.on("updateEvent",(data) => console.log(data)) // prints "step one passed"
 ```
 
+Client can leverage the [ACK patten](https://socket.io/fr/docs/v4/client-api/#socketemiteventname-args-ack). Handy to implement `async/await` `request/response` pattern.
+```js
+socket.emit("say_hello", (stuff:any)=>{console.log(`I received content ${stuff}`)});
+```
+
+Equivalently Synchronous in [Python](https://python-socketio.readthedocs.io/en/latest/api.html#socketio.Client.call) (not thread-safe!!)
+
+```python
+import socketio
+
+# Create a synchronous Socket.IO client
+sio = socketio.Client()
+
+sio.connect("http://your-server-url.com")
+# Call a server-side function synchronously
+response = sio.call("my_server_function", {"key": "value"})
+print("Server response:", response)
+```
