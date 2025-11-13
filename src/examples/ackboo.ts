@@ -20,4 +20,13 @@ export class DemoACK extends SocketController {
       }, 2000);
     });
   }
+
+  @ListenTo()
+  ackbooError(data: string, socket: any) {
+    console.log(
+      `[Controler] SocketManager[${this.id} / ${socket.id}]:\'ackbooError\' reveives \"${inspect(data)}\"`,
+    );
+
+    throw new Error("Ackboo generated an error!");
+  }
 }

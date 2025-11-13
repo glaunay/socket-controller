@@ -111,9 +111,8 @@ export function SocketControllerRegister<
                   content = `${e}`;
                 }
                 const errResp = { type: "error", content } as SocketError;
-
                 if (maybeAckCallback !== undefined) maybeAckCallback(errResp);
-                else socket.emit(ansEvtName as string);
+                else socket.emit(ansEvtName as string, errResp);
               }
             });
           });

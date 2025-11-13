@@ -11,6 +11,15 @@ const ackTestClient = () => {
     socket.emit("ackboo", { some: "stuff" }, (d: any) => {
       console.log(`ACK callback received:${d}`);
     });
+
+    setTimeout(() => {
+      socket.emit("ackbooError", { some: "stuff" });
+    }, 1000);
+
+    socket.on("ackbooError", (d) => {
+      console.log("Received following err ");
+      console.log(d);
+    });
   });
 };
 
